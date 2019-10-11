@@ -1,6 +1,5 @@
 package service;
 
-import com.sun.corba.se.impl.ior.WireObjectKeyTemplate;
 import entity.*;
 
 import java.util.ArrayList;
@@ -11,15 +10,15 @@ import java.util.regex.Pattern;
 
 public class ConverterService {
     private Text text;
-    private Paragraph paragraph;
-    private Sentence sentence;
-    private Word word;
-    private Charac charac;
+    private String PARAGRAPH_REGEX = "\\s*.+\\s*";
+    private String SENTENCE_REGEX = "(.+?)[.?!]";
+    private String WORD_REGEX = "\\w+";
+    private String CHARAC_REGEX = "[^\\w\\s]";
 
     public List<Paragraph> fromTextToParagraphs(String text){
         this.text = new Text(text);
         List<Paragraph> list = new ArrayList<>();
-        Matcher matcher = Pattern.compile("\\s*.+\\s*").matcher(text);//".+\\R"
+        Matcher matcher = Pattern.compile(PARAGRAPH_REGEX).matcher(text);
         while (matcher.find()){
             list.add(new Paragraph(matcher.group()));
         }
@@ -28,9 +27,9 @@ public class ConverterService {
 
     public List<Sentence> fromParagraphsToSentences(List<Paragraph> paragraphs) {
         List<Sentence> sentences = new ArrayList<>();
-        paragraphs.stream()
+        paragraphs
                 .forEach(i -> {
-                    Matcher matcher = Pattern.compile("(.+?)[.?!]").matcher(i.getParagraph()); //^\s+[A-Za-z,;'"\s]+[.?!]$   "[^.!?]*[.!?]"
+                    Matcher matcher = Pattern.compile(SENTENCE_REGEX).matcher(i.getParagraph());
                     while (matcher.find()){
                         sentences.add(new Sentence(matcher.group()));
                     }
@@ -40,9 +39,8 @@ public class ConverterService {
 
     public List<Word> fromSentencesToWords(List<Sentence> sentences){
         List<Word> words = new ArrayList<>();
-        sentences.stream()
-                .forEach(i ->{
-                    Matcher matcher =Pattern.compile("\\w+").matcher(i.getSentence());
+        sentences.forEach(i ->{
+                    Matcher matcher =Pattern.compile(WORD_REGEX).matcher(i.getSentence());
                     while (matcher.find()){
                         words.add(new Word(matcher.group()));
                     }
@@ -52,9 +50,8 @@ public class ConverterService {
 
     public List<Charac> fromSentencesToCharac(List<Sentence> sentences){
         List<Charac> chars = new ArrayList<>();
-        sentences.stream()
-                .forEach(i ->{
-                    Matcher matcher = Pattern.compile("[^\\w\\s]").matcher(i.getSentence());
+        sentences.forEach(i ->{
+                    Matcher matcher = Pattern.compile(CHARAC_REGEX).matcher(i.getSentence());
                     while (matcher.find()){
                         chars.add(new Charac(matcher.group()));
                     }
